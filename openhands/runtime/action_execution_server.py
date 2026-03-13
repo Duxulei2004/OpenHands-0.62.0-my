@@ -46,6 +46,7 @@ from openhands.events.action import (
     FileReadAction,
     FileWriteAction,
     IPythonRunCellAction,
+    RvvCompileAction,
 )
 from openhands.events.event import FileEditSource, FileReadSource
 from openhands.events.observation import (
@@ -57,6 +58,7 @@ from openhands.events.observation import (
     FileWriteObservation,
     IPythonRunCellObservation,
     Observation,
+    RvvCompileObservation,
 )
 from openhands.events.serialization import event_from_dict, event_to_dict
 from openhands.runtime.browser import browse
@@ -394,6 +396,23 @@ class ActionExecutor:
             return obs
         except Exception as e:
             logger.exception(f'Error running command: {e}')
+            return ErrorObservation(str(e))
+
+    async def rvv_compile(
+        self, action: RvvCompileAction
+    ) -> RvvCompileObservation | ErrorObservation:
+        try:
+            assert self.bash_session is not None
+            cmd_action = CmdRunAction(command=action.command)
+            cmd_action.set_hard_timeout(600)
+            obs = await call_sync_from_async(self.bash_session.execute, cmd_action)
+            return RvvCompileObservation(
+                content=obs.content,
+                command=action.command,
+                metadata=obs.metadata,
+            )
+        except Exception as e:
+            logger.exception(f'Error running RVV compile: {e}')
             return ErrorObservation(str(e))
 
     async def run_ipython(self, action: IPythonRunCellAction) -> Observation:

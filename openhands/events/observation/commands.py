@@ -229,3 +229,64 @@ class IPythonRunCellObservation(Observation):
         if self.image_urls:
             result += f'\nImages: {len(self.image_urls)}'
         return result
+
+
+@dataclass
+class RvvCompileObservation(Observation):
+    """This data class represents the output of a RvvCompileAction."""
+
+    command: str
+    observation: str = ObservationType.RVV_COMPILE
+    metadata: CmdOutputMetadata = field(default_factory=CmdOutputMetadata)
+
+    def __init__(
+        self,
+        content: str,
+        command: str,
+        observation: str = ObservationType.RVV_COMPILE,
+        metadata: dict[str, Any] | CmdOutputMetadata | None = None,
+        **kwargs: Any,
+    ) -> None:
+        content = self._maybe_truncate(content)
+        super().__init__(content)
+        self.command = command
+        self.observation = observation
+        if isinstance(metadata, dict):
+            self.metadata = CmdOutputMetadata(**metadata)
+        else:
+            self.metadata = metadata or CmdOutputMetadata()
+        if 'exit_code' in kwargs:
+            self.metadata.exit_code = kwargs['exit_code']
+
+    @staticmethod
+    def _maybe_truncate(content: str, max_size: int = MAX_CMD_OUTPUT_SIZE) -> str:
+        if len(content) <= max_size:
+            return content
+        half = max_size // 2
+        return (
+            content[:half]
+            + '\n[... Observation truncated due to length ...]\n'
+            + content[-half:]
+        )
+
+    @property
+    def exit_code(self) -> int:
+        return self.metadata.exit_code
+
+    @property
+    def error(self) -> bool:
+        return self.exit_code != 0
+
+    @property
+    def message(self) -> str:
+        return f'RVV compile command executed with exit code {self.exit_code}.'
+
+    @property
+    def success(self) -> bool:
+        return not self.error
+
+    def __str__(self) -> str:
+        return (
+            f'**RvvCompileObservation (exit code={self.exit_code})**\n'
+            f'{self.content}'
+        )

@@ -18,6 +18,7 @@ from openhands.events.action.browse import BrowseInteractiveAction, BrowseURLAct
 from openhands.events.action.commands import (
     CmdRunAction,
     IPythonRunCellAction,
+    RvvCompileAction,
 )
 from openhands.events.action.empty import NullAction
 from openhands.events.action.files import (
@@ -50,6 +51,7 @@ actions = (
     MCPAction,
     TaskTrackingAction,
     LoopRecoveryAction,
+    RvvCompileAction,
 )
 
 ACTION_TYPE_TO_CLASS = {action_class.action: action_class for action_class in actions}  # type: ignore[attr-defined]

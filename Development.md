@@ -85,6 +85,7 @@ See [our documentation](https://docs.all-hands.dev/usage/llms) for recommended m
 Once the setup is complete, this command starts both the backend and frontend servers, allowing you to interact with OpenHands:
 
 ```bash
+make run 2>&1 | tee run.log
 make run
 ```
 

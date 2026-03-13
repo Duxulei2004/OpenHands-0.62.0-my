@@ -14,6 +14,7 @@ from openhands.events.observation.commands import (
     CmdOutputMetadata,
     CmdOutputObservation,
     IPythonRunCellObservation,
+    RvvCompileObservation,
 )
 from openhands.events.observation.delegate import AgentDelegateObservation
 from openhands.events.observation.empty import (
@@ -53,6 +54,7 @@ observations = (
     FileDownloadObservation,
     TaskTrackingObservation,
     LoopDetectionObservation,
+    RvvCompileObservation,
 )
 
 OBSERVATION_TYPE_TO_CLASS = {
@@ -116,6 +118,14 @@ def observation_from_dict(observation: dict) -> Observation:
 
     # convert metadata to CmdOutputMetadata if it is a dict
     if observation_class is CmdOutputObservation:
+        if 'metadata' in extras and isinstance(extras['metadata'], dict):
+            extras['metadata'] = CmdOutputMetadata(**extras['metadata'])
+        elif 'metadata' in extras and isinstance(extras['metadata'], CmdOutputMetadata):
+            pass
+        else:
+            extras['metadata'] = CmdOutputMetadata()
+
+    if observation_class is RvvCompileObservation:
         if 'metadata' in extras and isinstance(extras['metadata'], dict):
             extras['metadata'] = CmdOutputMetadata(**extras['metadata'])
         elif 'metadata' in extras and isinstance(extras['metadata'], CmdOutputMetadata):

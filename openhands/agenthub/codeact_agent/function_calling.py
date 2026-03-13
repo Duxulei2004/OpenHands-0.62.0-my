@@ -37,13 +37,14 @@ from openhands.events.action import (
     FileReadAction,
     IPythonRunCellAction,
     MessageAction,
+    RvvCompileAction,
     TaskTrackingAction,
 )
 from openhands.events.action.agent import CondensationRequestAction
 from openhands.events.action.mcp import MCPAction
 from openhands.events.event import FileEditSource, FileReadSource
 from openhands.events.tool import ToolCallMetadata
-from openhands.llm.tool_names import TASK_TRACKER_TOOL_NAME
+from openhands.llm.tool_names import RVV_COMPILE_TOOL_NAME, TASK_TRACKER_TOOL_NAME
 
 
 def combine_thought(action: Action, thought: str) -> Action:
@@ -249,6 +250,16 @@ def response_to_actions(
                     )
                 action = BrowseInteractiveAction(browser_actions=arguments['code'])
                 set_security_risk(action, arguments)
+
+            # ================================================
+            # RvvCompileAction
+            # ================================================
+            elif tool_call.function.name == RVV_COMPILE_TOOL_NAME:
+                if 'ncnn_path' not in arguments:
+                    raise FunctionCallValidationError(
+                        f'Missing required argument "ncnn_path" in tool call {tool_call.function.name}'
+                    )
+                action = RvvCompileAction(ncnn_path=arguments['ncnn_path'])
 
             # ================================================
             # TaskTrackingAction

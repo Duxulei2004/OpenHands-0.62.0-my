@@ -100,3 +100,6 @@ class ActionType(str, Enum):
 
     LOOP_RECOVERY = 'loop_recovery'
     """Recover dead loop."""
+
+    RVV_COMPILE = 'rvv_compile'
+    """Compile ncnn with RVV support for RISC-V."""

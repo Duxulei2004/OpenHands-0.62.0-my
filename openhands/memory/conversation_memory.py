@@ -18,6 +18,7 @@ from openhands.events.action import (
     FileReadAction,
     IPythonRunCellAction,
     MessageAction,
+    RvvCompileAction,
     TaskTrackingAction,
 )
 from openhands.events.action.mcp import MCPAction
@@ -34,6 +35,7 @@ from openhands.events.observation import (
     FileReadObservation,
     IPythonRunCellObservation,
     LoopDetectionObservation,
+    RvvCompileObservation,
     TaskTrackingObservation,
     UserRejectObservation,
 )
@@ -231,6 +233,7 @@ class ConversationMemory:
                 BrowseInteractiveAction,
                 BrowseURLAction,
                 MCPAction,
+                RvvCompileAction,
                 TaskTrackingAction,
             ),
         ) or (isinstance(action, CmdRunAction) and action.source == 'agent'):
@@ -397,6 +400,17 @@ class ConversationMemory:
                 )
             else:
                 text = truncate_content(obs.to_agent_observation(), max_message_chars)
+            message = Message(role='user', content=[TextContent(text=text)])
+        elif isinstance(obs, RvvCompileObservation):
+            # Handle RvvCompileObservation similar to CmdOutputObservation
+            if obs.tool_call_metadata is None:
+                # if it doesn't have tool call metadata, it was triggered by a user action
+                text = truncate_content(
+                    f'\nObserved result of RVV compile executed by user:\n{str(obs)}',
+                    max_message_chars,
+                )
+            else:
+                text = truncate_content(str(obs), max_message_chars)
             message = Message(role='user', content=[TextContent(text=text)])
         elif isinstance(obs, MCPObservation):
             # logger.warning(f'MCPObservation: {obs}')

@@ -61,3 +61,6 @@ class ObservationType(str, Enum):
 
     LOOP_DETECTION = 'loop_detection'
     """Results of a dead-loop detection"""
+
+    RVV_COMPILE = 'rvv_compile'
+    """Result of an RVV compile operation"""

@@ -6,6 +6,7 @@ from openhands.events.observation import (
     CmdOutputObservation,
     NullObservation,
     Observation,
+    RvvCompileObservation,
 )
 
 
@@ -54,7 +55,7 @@ def get_pairs_from_events(events: list[Event]) -> list[tuple[Action, Observation
         if cause_id not in action_map:
             if isinstance(observation, NullObservation):
                 continue
-            if not isinstance(observation, CmdOutputObservation):
+            if not isinstance(observation, (CmdOutputObservation, RvvCompileObservation)):
                 logger.debug(f'Observation {observation} has no cause')
             tuples.append((NullAction(), observation))
 
